@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+{% block content %}
+
+    <!-- Header -->
+    <div class="text-center mt-6">
+        <h1 class="text-4xl font-bold text-blue-400">DSP501 - Group 3</h1>
+        <p class="text-lg text-gray-400 mt-2">Male and Female Voice Classification</p>
+    </div>
+
+    <!-- Sound Wave Visualization -->
+    <div class="flex justify-center mt-6">
+        <img id="waveImage" class="w-full max-w-md h-40 bg-black rounded-lg shadow-lg" alt="Waveform" src="/static/images/placeholder.jpg">
+    </div>
+
+    <!-- Classification Result -->
+    <div class="text-center mt-6">
+        <h1 id="result" class="text-4xl font-bold text-white">Upload or Record Audio</h1>
+        <p id="confidence" class="text-sm text-gray-500 mt-2"></p>
+    </div>
+
+    <!-- Audio Playback -->
+    <div id="audioPlayerContainer" class="text-center mt-4 hidden">
+        <audio id="audioPlayer" controls class="mt-2"></audio>
+    </div>
+
+    <!-- Upload & Record Buttons -->
+    <div class="mt-6 flex flex-col items-center gap-4">
+        <input type="file" id="audioInput" accept="audio/*" class="hidden">
+        <button id="uploadBtn" onclick="document.getElementById('audioInput').click()"
+                class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition">
+            📂 Upload
+        </button>
+        <button id="recordBtn"
+                class="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition">
+            🎙️ Record
+        </button>
+        <p id="countdown" class="text-lg font-semibold text-gray-600 hidden"></p>
+    </div>
+
+    <!-- Processing Animation -->
+    <div id="loading" class="text-center mt-4 hidden">
+        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-blue-500 mx-auto"></div>
+        <p class="text-sm text-gray-500 mt-2">Processing...</p>
+    </div>
+
+    <script>
+        let recorder, audioChunks = [];
+        let recordingStream, countdownInterval, timeLeft = 10;
+        let recordedAudioUrl = null;
+
+        // Handle Audio Upload
+        document.getElementById("audioInput").addEventListener("change", async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            recordedAudioUrl = URL.createObjectURL(file);
+            classifyAudio(file);
+        });
+
+        // Handle Audio Recording
+        document.getElementById("recordBtn").addEventListener("click", async () => {
+            document.getElementById("audioPlayerContainer").classList.add("hidden");
+            if (!recorder) {
+                // Disable Upload Button
+                document.getElementById("uploadBtn").disabled = true;
+                document.getElementById("uploadBtn").classList.add("opacity-50", "cursor-not-allowed");
+
+                const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+                recordingStream = stream;
+                recorder = new MediaRecorder(stream);
+                audioChunks = [];
+                timeLeft = 10;
+
+                // Start Countdown
+                document.getElementById("countdown").textContent = `Recording... ${timeLeft}s`;
+                document.getElementById("countdown").classList.remove("hidden");
+                countdownInterval = setInterval(() => {
+                    timeLeft--;
+                    document.getElementById("countdown").textContent = `Recording... ${timeLeft}s`;
+                    if (timeLeft <= 0) stopRecording();
+                }, 1000);
+
+                recorder.ondataavailable = (e) => audioChunks.push(e.data);
+                recorder.onstop = async () => {
+                    clearInterval(countdownInterval);
+                    document.getElementById("countdown").classList.add("hidden");
+
+                    const audioBlob = new Blob(audioChunks, {type: 'audio/wav'});
+                    recordedAudioUrl = URL.createObjectURL(audioBlob); // Store the URL
+                    classifyAudio(audioBlob);
+                    audioChunks = [];
+                };
+
+                recorder.start();
+                document.getElementById("recordBtn").textContent = "Stop Recording";
+                document.getElementById("recordBtn").classList.add("bg-gray-500");
+            } else {
+                stopRecording();
+            }
+        });
+
+        function stopRecording() {
+            if (recorder) {
+                recorder.stop();
+                document.getElementById("recordBtn").textContent = "🎙️ Record";
+                document.getElementById("recordBtn").classList.remove("bg-gray-500");
+                recorder = null;
+                recordingStream.getTracks().forEach(track => track.stop());
+
+                // Re-enable Upload Button
+                document.getElementById("uploadBtn").disabled = false;
+                document.getElementById("uploadBtn").classList.remove("opacity-50", "cursor-not-allowed");
+            }
+        }
+
+        // Send Audio to Flask API
+        async function classifyAudio(audio) {
+            document.getElementById("loading").classList.remove("hidden");
+            const formData = new FormData();
+            formData.append("file", audio);
+
+            try {
+                const response = await fetch("/classify", {method: "POST", body: formData});
+                const data = await response.json();
+
+                // Hide processing animation
+                document.getElementById("loading").classList.add("hidden");
+
+                // Display classification result
+                document.getElementById("result").textContent = data.classification;
+                document.getElementById("confidence").textContent = `Confidence: ${data.pitch.toFixed(2)} Hz`;
+
+                // Display waveform image
+                if (data.waveform) {
+                    document.getElementById("waveImage").src = `data:image/png;base64,${data.waveform}`;
+                    document.getElementById("waveImage").style.display = "block"; // Make it visible
+                }
+
+                // Show the audio player
+                if (recordedAudioUrl) {
+                    document.getElementById("audioPlayer").src = recordedAudioUrl;
+                    document.getElementById("audioPlayerContainer").classList.remove("hidden");
+                }
+            } catch (error) {
+                console.error("Error parsing response:", error);
+                document.getElementById("loading").classList.add("hidden");
+            }
+        }
+    </script>
+{% endblock %}

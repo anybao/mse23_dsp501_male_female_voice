@@ -1,0 +1,366 @@
+/* Basic Layout */
+body {
+    background-color: #f7f7f7; /* Light background color */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    /*padding: 0;*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow-y: scroll;
+    box-sizing: border-box; /* Ensure padding doesn't overflow */
+    position: relative; /* Allow positioning of fixed elements */
+    padding-bottom: 50px; /* Ensure space for the fixed button at the bottom */
+}
+
+.card {
+    position: relative; /* Ensure card is positioned relatively so the absolute positioning inside it works */
+}
+
+.top-left-button {
+    position: absolute;
+    top: 10px; /* Adjust based on your design */
+    left: 10px; /* Adjust based on your design */
+    z-index: 10; /* Ensure it stays above other elements */
+}
+
+.btn-circle {
+    width: 50px; /* Set width of the button */
+    height: 50px; /* Set height of the button */
+    border-radius: 50%; /* Make the button circular */
+    background-color: #ffdf00; /* Example background color */
+    color: #fff; /* Text color */
+    font-size: 20px; /* Adjust text size */
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.btn-circle:hover {
+    background-color: #ffcc00; /* Example hover color */
+}
+
+/* Card Design */
+.card {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Increased max-width to better fit larger screens */
+    /*padding: 20px;*/
+    overflow: hidden;
+    text-align: center;
+    margin: 10px;
+}
+
+.card img {
+    width: 100%;
+    /*height: auto;*/
+    border-bottom: 2px solid #ddd;
+}
+
+.info {
+    padding: 20px; /* Adjust padding */
+}
+
+.info h2 {
+    margin: 0;
+    font-size: 36px; /* Adjust heading size */
+    font-weight: bold;
+    color: #333;
+}
+
+.info p {
+    font-size: 20px; /* Adjust paragraph font size */
+    color: #888;
+    margin: 8px 0;
+}
+
+/* Action Buttons */
+.actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+button {
+    font-size: 20px; /* Adjust font size for buttons */
+    padding: 15px 30px; /* Adjust padding */
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    width: 45%;
+}
+
+.like-btn {
+    background-color: #34b7f1; /* Tinder blue */
+    color: white;
+}
+
+.pass-btn {
+    background-color: #ff6b6b; /* Tinder red */
+    color: white;
+}
+
+button:hover {
+    transform: scale(1.1);
+}
+
+/* Responsive Design for Tablets and Mobile */
+@media (max-width: 1024px) {
+    /* For tablets and smaller screens */
+    .card {
+        width: 90%;
+        max-width: 500px; /* Set max-width for tablets */
+        margin: 15px;
+    }
+
+    .info h2 {
+        font-size: 30px;
+    }
+
+    .info p {
+        font-size: 16px;
+    }
+
+    button {
+        font-size: 18px;
+        padding: 12px 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* For medium screens like tablets in portrait mode */
+    .card {
+        width: 95%;
+        max-width: 480px; /* Adjust card width for smaller tablets */
+    }
+
+    .info h2 {
+        font-size: 28px;
+    }
+
+    .info p {
+        font-size: 16px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 10px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* For small mobile screens */
+    .card {
+        width: 100%;
+        max-width: 100%;
+        margin: 10px;
+    }
+
+    .info h2 {
+        font-size: 24px;
+    }
+
+    .info p {
+        font-size: 14px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 14px 16px;
+    }
+}
+
+/* Footer Style */
+.footer {
+    position: fixed;
+    bottom: 0; /* Fixed at the bottom */
+    left: 0;
+    width: 100%;
+    color: #888; /* Muted text color */
+    text-align: center;
+    z-index: 1000; /* Make sure it's above all other elements */
+}
+
+/* Animation for "pass" effect */
+@keyframes passEffect {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    50% {
+        transform: translateX(-50px) rotate(-10deg);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translateX(-100%) rotate(-20deg);
+        opacity: 0;
+    }
+}
+
+.pass-animation {
+    animation: passEffect 0.8s ease-out forwards;
+}
+
+/* Animation for "like" effect */
+@keyframes likeEffect {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); /* Glow effect */
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-100px) scale(0.8);
+        opacity: 0;
+    }
+}
+
+.like-animation {
+    animation: likeEffect 0.8s ease-out forwards;
+}
+
+.details {
+    min-height: 100px;
+}
+
+.girl-name {
+    min-height: 45px;
+}
+
+/* Favorite card styles */
+.favorite-card {
+    padding: 20px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Back button styles */
+.back-btn {
+    background: #c2c2c2;
+    border: none;
+    color: #ffffff;
+    /*width: 120px;*/
+    cursor: pointer;
+}
+
+/* Title for the Liked Girls section */
+.favorite-card h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Scrollable liked girls list */
+.liked-girls-list {
+    max-height: 400px;  /* Set a max height for scrolling */
+    overflow-y: auto;   /* Enable vertical scrolling */
+    padding: 10px 0;
+    margin-bottom: 10px;
+}
+
+/* Individual liked girl item styles */
+.liked-girl {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.liked-girl:hover {
+    background-color: #f1f1f1;  /* Hover effect */
+}
+
+/* Avatar styles */
+.liked-girl img.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+/* Girl's name styles */
+.liked-girl span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Adjustments for smaller screens */
+@media (max-width: 600px) {
+    .liked-girl span {
+        font-size: 16px;
+    }
+
+    .footer {
+        display: none;
+    }
+
+    .back-btn {
+        font-size: 14px;
+    }
+}
+
+.actions-detail {
+    display: flex;
+    flex-direction: column; /* Arrange items vertically */
+    align-items: center;    /* Center items horizontally */
+    gap: 10px;              /* Add spacing between buttons */
+    margin-top: 10px;       /* Optional: Add some spacing from the top */
+    margin-bottom: 10px;
+}
+
+/* Google button */
+.google-btn {
+    background-color: #4285F4;  /* Google blue */
+    color: white;
+    width: auto;
+}
+
+.google-btn:hover {
+    background-color: #357AE8;  /* Darker blue for hover */
+    transform: translateY(-2px);  /* Slight elevation on hover */
+}
+
+.google-btn:active {
+    background-color: #2A6AD3;  /* Even darker on click */
+}
+
+/* Pornhub button */
+.pornhub-btn {
+    background-color: #FF8C00;  /* Pornhub yellow */
+    color: white;
+}
+
+.pornhub-btn:hover {
+    background-color: #E57C00;  /* Darker yellow on hover */
+    transform: translateY(-2px);  /* Slight elevation on hover */
+}
+
+.pornhub-btn:active {
+    background-color: #D56D00;  /* Even darker yellow on click */
+}
+
+.confidence-level {
+    color: #b3b3b3;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.consistent-image {
+    width: 150px; /* Set a fixed width */
+    height: 350px; /* Set a fixed height */
+    object-fit: cover; /* Ensures the image fits within the box without distortion */
+    border-radius: 10px; /* Optional: adds rounded corners */
+}
