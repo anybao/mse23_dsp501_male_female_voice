@@ -3,12 +3,13 @@ import numpy as np
 import librosa
 import pandas as pd
 import librosa.feature
+from dotenv import load_dotenv
 
 # Define paths to audio files∆
-# MALE_PATH = '../data/males'
-MALE_PATH = "/Users/quanghuy/Documents/MSE/DSP501/dsp501-male-female-voice/data/males"
-FEMALE_PATH = "/Users/quanghuy/Documents/MSE/DSP501/dsp501-male-female-voice/data/females"
-
+load_dotenv()
+base_dir = os.getenv('BASE_PATH', '/opt/render/project/src/')
+MALE_PATH = os.path.join(base_dir, 'data', 'males')
+FEMALE_PATH = os.path.join(base_dir, 'data', 'females')
 
 def extract_features(file_path):
     """

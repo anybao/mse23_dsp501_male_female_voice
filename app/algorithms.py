@@ -1,6 +1,5 @@
 import base64
 import librosa
-import numpy as np
 import matplotlib
 
 from app.sound_analyze import analyze_new_audio
