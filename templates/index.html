@@ -59,6 +59,7 @@
         // Handle Audio Recording
         document.getElementById("recordBtn").addEventListener("click", async () => {
             document.getElementById("audioPlayerContainer").classList.add("hidden");
+            document.getElementById("result").textContent = 'Recording';
             if (!recorder) {
                 // Disable Upload Button
                 document.getElementById("uploadBtn").disabled = true;
@@ -127,7 +128,7 @@
 
                 // Display classification result
                 document.getElementById("result").textContent = data.classification;
-                document.getElementById("confidence").textContent = `Confidence: ${data.pitch.toFixed(2)} Hz`;
+                document.getElementById("confidence").textContent = `Confidence: ${data.confidence.toFixed(2)}`;
 
                 // Display waveform image
                 if (data.waveform) {

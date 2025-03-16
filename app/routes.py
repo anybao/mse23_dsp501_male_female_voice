@@ -2,8 +2,7 @@ import os
 import time
 
 from flask import Blueprint, render_template, request, jsonify
-
-from app.algorithms import get_pitch, classify_voice, generate_waveform_image
+from app.algorithms import classify_voice, generate_waveform_image
 
 bp = Blueprint("routes", __name__)
 
@@ -23,8 +22,7 @@ def classify():
     file.save(file_path)
 
     # Extract pitch and classify
-    pitch = get_pitch(file_path)
-    classification = classify_voice(pitch)
+    classification, confidence = classify_voice(file_path)
 
     # Generate waveform image
     waveform_image = generate_waveform_image(file_path)
@@ -33,7 +31,7 @@ def classify():
         os.remove(file_path)
 
     return jsonify({
-        "pitch": float(pitch),  # Convert float32 to float
+        "confidence": float(confidence),  # Convert float32 to float
         "classification": classification,
         "waveform": waveform_image  # Base64-encoded image
     })

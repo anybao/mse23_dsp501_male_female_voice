@@ -2,23 +2,19 @@ import base64
 import librosa
 import numpy as np
 import matplotlib
+
+from app.sound_analyze import analyze_new_audio
+
 matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
 import io
 
-# Function to extract pitch
-def get_pitch(audio_path):
-    y, sr = librosa.load(audio_path, sr=16000)
-    pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-    pitch_values = pitches[magnitudes > np.median(magnitudes)]
-    mean_pitch = np.mean(pitch_values) if len(pitch_values) > 0 else 0
-    return float(mean_pitch)  # Ensure it's a Python float
-
 # Function to classify voice
-def classify_voice(pitch):
-    if pitch == 0:
-        return "Unknown"
-    return "Male" if pitch < 165 else "Female"
+def classify_voice(file_path):
+    result, confidence = analyze_new_audio(file_path)
+    return result, confidence
+    # return "Male" if pitch < 165 else "Female"
+
 
 # Function to generate waveform image and return as Base64
 def generate_waveform_image(audio_path):
