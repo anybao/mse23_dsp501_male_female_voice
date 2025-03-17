@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 
 # Define paths to audio files∆
 load_dotenv()
-base_dir = os.getenv('BASE_PATH', '/opt/render/project/src/')
+print("Current Working Directory:", os.getcwd())
+base_dir = os.getenv('BASE_PATH', os.getcwd())
 MALE_PATH = os.path.join(base_dir, 'data', 'males')
 FEMALE_PATH = os.path.join(base_dir, 'data', 'females')
 
