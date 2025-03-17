@@ -18,7 +18,9 @@ def classify():
         return jsonify({"error": "No file uploaded"}), 400
 
     file = request.files["file"]
-    file_path = "./" + str(int(time.time())) + "_temp_audio.wav"
+    base_dir = os.getenv('BASE_PATH', os.getcwd())
+    file_path = os.path.join(base_dir, 'data', str(int(time.time())) + "_temp_audio.wav")
+    print('Record voice: ' + file_path)
     file.save(file_path)
 
     # Extract pitch and classify
