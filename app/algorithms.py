@@ -1,18 +1,40 @@
 import base64
 import librosa
 import matplotlib
+import numpy as np
 
-from app.sound_analyze import analyze_new_audio
+# from app.sound_analyze import analyze_new_audio
 
 matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
 import io
 
+
+# Function to analyze Spectral Flux for voice classification
+def analyze_new_audio(file_path, threshold=19):
+    y, sr = librosa.load(file_path, sr=16000)  # Load audio file with fixed sample rate
+    spectral_flux = np.diff(librosa.feature.spectral_centroid(y=y, sr=sr), axis=1)  # Compute Spectral Flux
+
+    # Compute Occurrence Pattern of SF
+    sf_mean = np.mean(spectral_flux)
+    sf_std = np.std(spectral_flux)
+
+    # Decision Threshold (from paper findings)
+
+    # Count occurrences above threshold
+    high_sf_occurrences = np.sum(spectral_flux > sf_mean + sf_std)
+
+    # Classify based on occurrence pattern of Spectral Flux
+    if high_sf_occurrences > threshold:
+        return "Female", high_sf_occurrences
+    else:
+        return "Male", high_sf_occurrences
+
+
 # Function to classify voice
 def classify_voice(file_path):
     result, confidence = analyze_new_audio(file_path)
     return result, confidence
-    # return "Male" if pitch < 165 else "Female"
 
 
 # Function to generate waveform image and return as Base64
