@@ -26,7 +26,7 @@ pip install -r requirements.txt
 
 ## Project Structure
 ```
-/webapp        # Web-based application (Flask)
+/              # Web-based application (Flask)
 /desktop       # Desktop application (PyQt6)
 /data          # Contains sample male/female voice recordings
 /app           # Core algorithm and logic
@@ -37,22 +37,22 @@ pip install -r requirements.txt
 ### Web Application
 1. Navigate to the `webapp` directory:
    ```
-   cd webapp
+   cd /
    ```
 2. Start the Flask server:
    ```
-   python app.py
+   python run.py
    ```
 3. Open the browser and access `http://127.0.0.1:5000`.
 
 ### Desktop Application
-1. Navigate to the `desktop` directory:
+1. Navigate to the `desktop-app` directory:
    ```
-   cd desktop
+   cd desktop-app
    ```
 2. Run the application:
    ```
-   python main.py
+   python app.py
    ```
 3. Use the UI to load an audio file or record and analyze.
 
@@ -62,12 +62,6 @@ The classification is based on spectral flux patterns:
 - Analyze **Spectral Flux Variability**.
 - Count high flux occurrences.
 - Compare against a **threshold** to classify gender.
-
-## Testing
-To test with a dataset:
-```
-python test_threshold.py --data-dir /data
-```
 
 ## Troubleshooting
 - If dependencies fail, ensure you have the correct Python version.
