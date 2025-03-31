@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sounddevice as sd
 import soundfile as sf
+import noisereduce as nr
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QFileDialog, QVBoxLayout, QHBoxLayout, QFrame
 from PyQt6.QtGui import QPixmap, QImage, QMovie
 from PyQt6.QtCore import QThread, Qt, QTimer
@@ -107,16 +108,28 @@ class VoiceClassifierApp(QWidget):
             QTimer.singleShot(100, lambda: self.process_audio(file_path))  # Delay processing slightly
 
     def process_audio(self, file_path):
+        # Load the audio
         self.audio_data, self.sr = librosa.load(file_path, sr=16000)
-
-        result, occurrences = analyze_new_audio(file_path)
+        
+        # Apply noise reduction
+        self.audio_data = self.reduce_noise(self.audio_data, self.sr)
+        
+        # Save the noise-reduced audio temporarily for analysis
+        temp_file = "temp_processed.wav"
+        sf.write(temp_file, self.audio_data, self.sr)
+        
+        result, occurrences = self.analyze_new_audio(temp_file)
         self.result_label.setText(f"🗣 Kết quả: {result}")
         self.result_label.setVisible(True)
         self.image_label.setVisible(True)
-
-        self.plot_waveform(file_path)
+        
+        self.plot_waveform(temp_file)
         self.play_button.setEnabled(True)
         self.hide_loading()
+        
+        # Clean up temporary file
+        if os.path.exists(temp_file):
+            os.remove(temp_file)
 
     def play_audio(self):
         if self.audio_data is not None:
@@ -138,23 +151,43 @@ class VoiceClassifierApp(QWidget):
         self.image_label.setPixmap(pixmap)
         self.image_label.setScaledContents(True)
 
-def analyze_new_audio(file_path, threshold=19):
-    y, sr = librosa.load(file_path, sr=16000)  # Load audio file with fixed sample rate
-    spectral_flux = np.diff(librosa.feature.spectral_centroid(y=y, sr=sr), axis=1)  # Compute Spectral Flux
+    def reduce_noise(self, audio_data, sr):
+        """
+        Reduce noise from the audio signal using the noisereduce library.
+        """
+        # Estimate noise from a portion of the signal (first 1000 samples)
+        noise_sample = audio_data[:1000]
+        
+        # Perform noise reduction
+        reduced_noise = nr.reduce_noise(
+            y=audio_data,
+            sr=sr,
+            prop_decrease=1.0,
+            stationary=True,
+            n_std_thresh_stationary=1.5
+        )
+        
+        return reduced_noise
 
-    # Compute Occurrence Pattern of SF
-    sf_mean = np.mean(spectral_flux)
-    sf_std = np.std(spectral_flux)
-
-    # Count occurrences above threshold
-    high_sf_occurrences = np.sum(spectral_flux > sf_mean + sf_std)
-
-    # Classify based on occurrence pattern of Spectral Flux
-    if high_sf_occurrences > threshold:
-        return "Female", high_sf_occurrences
-    else:
-        return "Male", high_sf_occurrences
-
+    def analyze_new_audio(self, file_path, threshold=19):
+        # Load and automatically apply noise reduction
+        y, sr = librosa.load(file_path, sr=16000)
+        
+        # Compute Spectral Flux on the noise-reduced signal
+        spectral_flux = np.diff(librosa.feature.spectral_centroid(y=y, sr=sr), axis=1)
+        
+        # Compute Occurrence Pattern of SF
+        sf_mean = np.mean(spectral_flux)
+        sf_std = np.std(spectral_flux)
+        
+        # Count occurrences above threshold
+        high_sf_occurrences = np.sum(spectral_flux > sf_mean + sf_std)
+        
+        # Classify based on occurrence pattern of Spectral Flux
+        if high_sf_occurrences > threshold:
+            return "Female", high_sf_occurrences
+        else:
+            return "Male", high_sf_occurrences
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -2,6 +2,7 @@ import base64
 import librosa
 import matplotlib
 import numpy as np
+from app.sound_analyze import analyze_new_audio, reduce_noise
 
 # from app.sound_analyze import analyze_new_audio
 
@@ -13,13 +14,15 @@ import io
 # Function to analyze Spectral Flux for voice classification
 def analyze_new_audio(file_path, threshold=19):
     y, sr = librosa.load(file_path, sr=16000)  # Load audio file with fixed sample rate
+    
+    # Apply noise reduction before feature extraction
+    y = reduce_noise(y, sr)
+    
     spectral_flux = np.diff(librosa.feature.spectral_centroid(y=y, sr=sr), axis=1)  # Compute Spectral Flux
 
     # Compute Occurrence Pattern of SF
     sf_mean = np.mean(spectral_flux)
     sf_std = np.std(spectral_flux)
-
-    # Decision Threshold (from paper findings)
 
     # Count occurrences above threshold
     high_sf_occurrences = np.sum(spectral_flux > sf_mean + sf_std)
@@ -39,7 +42,10 @@ def classify_voice(file_path):
 
 # Function to generate waveform image and return as Base64
 def generate_waveform_image(audio_path):
+    # Load and apply noise reduction
     y, sr = librosa.load(audio_path, sr=16000)
+    y = reduce_noise(y, sr)  # Apply noise reduction before visualization
+    
     plt.figure(figsize=(10, 3), facecolor='black')  # Dark theme
     plt.plot(y, color="cyan", linewidth=2.5, alpha=0.8)  # Neon-style waveform
     plt.gca().set_facecolor('black')  # Set plot background to black

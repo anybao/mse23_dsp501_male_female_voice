@@ -3,6 +3,7 @@ import numpy as np
 import librosa
 import pandas as pd
 import librosa.feature
+import noisereduce as nr
 from dotenv import load_dotenv
 
 # Define paths to audio files∆
@@ -11,6 +12,30 @@ print("Current Working Directory:", os.getcwd())
 base_dir = os.getenv('BASE_PATH', os.getcwd())
 MALE_PATH = os.path.join(base_dir, 'data', 'males')
 FEMALE_PATH = os.path.join(base_dir, 'data', 'females')
+
+def reduce_noise(audio_data, sr):
+    """
+    Reduce noise from the audio signal using the noisereduce library.
+    
+    Parameters:
+    - audio_data: numpy array of audio samples
+    - sr: sampling rate
+    
+    Returns:
+    - noise reduced audio signal
+    """
+    # Estimate noise from a portion of the signal (first 1000 samples)
+    noise_sample = audio_data[:1000]
+    
+    # Perform noise reduction using the noise sample (non-stationary mode)
+    reduced_noise = nr.reduce_noise(
+        y=audio_data,
+        sr=sr,
+        y_noise=noise_sample,
+        prop_decrease=0.75
+    )
+    
+    return reduced_noise
 
 def extract_features(file_path):
     """
@@ -28,6 +53,9 @@ def extract_features(file_path):
     try:
         # Load audio file with librosa
         y, sr = librosa.load(file_path, sr=None)
+        
+        # Apply noise reduction
+        y = reduce_noise(y, sr)
 
         # Extract features
         # Fundamental frequency (pitch)
